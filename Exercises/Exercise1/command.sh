@@ -1,0 +1,1 @@
+export FLASK_APP=VulnerableApp && flask run -p 4444

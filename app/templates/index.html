@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Penetration Testing Exercise List</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
+</head>
+<body>
+    <h1>Select an exercise</h1>
+    <form method="POST" action="{{ url_for('main.select_exercise') }}">
+        <label for="exercise">Choose an exercise:</label>
+        <select name="exercise" id="exercise">
+            {% for opt in exercises %}
+                <option value="{{ opt }}">{{ opt }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
