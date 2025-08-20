@@ -4,19 +4,58 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Penetration Testing Exercise List</title>
+    <title>Penetration Testing Exercise Hub</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
+    <style>
+        body {
+            padding: 40px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px;
+        }
+        h1, h2 {
+            margin-bottom: 24px;
+        }
+        form {
+            margin-top: 24px;
+        }
+        .info {
+            margin-bottom: 32px;
+            color: #555;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.95em;
+        }
+    </style>
 </head>
 <body>
-    <h1>Select an exercise</h1>
-    <form method="POST" action="{{ url_for('main.select_exercise') }}">
-        <label for="exercise">Choose an exercise:</label>
-        <select name="exercise" id="exercise">
-            {% for opt in exercises %}
-                <option value="{{ opt }}">{{ opt }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Submit</button>
-    </form>
+    <div class="container">
+        <h1>Penetration Testing Exercise Hub</h1>
+        <h2>Please select an exercise below</h2>
+        <div class="info">
+            <p>Welcome to the exercise hub! Here you can launch vulnerable applications for hands-on penetration testing practice. Select an exercise from the list and click submit to begin.</p>
+        </div>
+        <form method="POST" action="{{ url_for('main.select_exercise') }}">
+            <label for="exercise" class="form-label">Choose an exercise:</label>
+            <select name="exercise" id="exercise" class="form-select mb-3">
+                {% for opt in exercises %}
+                    <option value="{{ opt }}">{{ opt.split('/')[-1] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div class="footer">
+            &copy; {{ 2025 }} Emile Gaston &mdash; For educational use only.
+        </div>
+    </div>
 </body>
 </html>
