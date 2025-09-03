@@ -114,7 +114,7 @@ echo.
 echo ✅ Environment setup complete!
 echo.
 echo 🚀 Starting Vulnerable Web Application...
-echo 🌐 Server will be available at: http://localhost:5000
+echo 🌐 Server will be available at: http://localhost:4444
 echo 🔑 Default credentials:
 echo    Username: Johnnydepp, Password: Pirates
 echo.
@@ -122,7 +122,7 @@ echo Press Ctrl+C to stop the server
 echo.
 
 REM Launch the application using flask run
-flask run --host=0.0.0.0 --port=5000
+flask run --host=0.0.0.0 --port=4444
 
 REM Deactivate virtual environment when done  
 call venv\Scripts\deactivate.bat

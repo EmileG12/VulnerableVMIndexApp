@@ -142,13 +142,13 @@ export FLASK_DEBUG=1
 echo -e "${GREEN}✅ Environment setup complete!${NC}"
 echo ""
 echo -e "${GREEN}🚀 Starting Vulnerable Web Application...${NC}"
-echo -e "${BLUE}🌐 Server will be available at: http://localhost:5000${NC}"
+echo -e "${BLUE}🌐 Server will be available at: http://localhost:4444${NC}"
 echo ""
 echo -e "${YELLOW}Press Ctrl+C to stop the server${NC}"
 echo ""
 
 # Launch the application using flask run
-flask run --host=0.0.0.0 --port=5000
+flask run --host=0.0.0.0 --port=4444
 
 # Deactivate virtual environment when done
 deactivate
