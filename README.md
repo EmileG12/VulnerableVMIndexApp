@@ -57,7 +57,7 @@ sudo apt install python3 python3-pip python3-venv
 
 ### 2. Set up Virtual Environment (Recommended)
 ```bash
-python3 -m venv venv
+python3 -m venv .venv
 source venv/bin/activate
 pip install flask
 ```
@@ -69,7 +69,7 @@ pip install flask
 
 ### 4. Use the Launch Script
 The application includes a `launch.sh` script that automatically:
-- Sets up and activates the Python virtual environment
+- Sets up and activates the Python virtual environment if missing
 - Installs required dependencies (Flask)
 - Starts the Flask application on all network interfaces (0.0.0.0:5000)
 - Provides proper error handling and logging

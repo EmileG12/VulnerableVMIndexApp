@@ -53,20 +53,94 @@ else
     PIP_CMD="pip3"
 fi
 
-# Create virtual environment if it doesn't exist
-if [ ! -d ".venv" ]; then
+# Function to validate virtual environment
+validate_venv() {
+    local venv_path=".venv"
+    
+    # Check if basic structure exists
+    if [ ! -d "$venv_path" ]; then
+        return 1  # Doesn't exist
+    fi
+    
+    # Check for activation script
+    if [ ! -f "$venv_path/bin/activate" ]; then
+        echo -e "${RED}❌ Virtual environment missing activation script${NC}"
+        return 2  # Corrupted
+    fi
+    
+    # Check for Python executable
+    if [ ! -f "$venv_path/bin/python" ] && [ ! -f "$venv_path/bin/python3" ]; then
+        echo -e "${RED}❌ Virtual environment missing Python executable${NC}"
+        return 2  # Corrupted
+    fi
+    
+    # Check for pip
+    if [ ! -f "$venv_path/bin/pip" ] && [ ! -f "$venv_path/bin/pip3" ]; then
+        echo -e "${RED}❌ Virtual environment missing pip${NC}"
+        return 2  # Corrupted
+    fi
+    
+    # Test if Python actually works in the venv
+    if ! "$venv_path/bin/python" -c "import sys; print('Python OK')" >/dev/null 2>&1; then
+        echo -e "${RED}❌ Virtual environment Python executable is broken${NC}"
+        return 2  # Corrupted
+    fi
+    
+    return 0  # Valid
+}
+
+# Create or recreate virtual environment
+echo -e "${YELLOW}📦 Checking virtual environment...${NC}"
+validate_venv
+venv_status=$?
+
+if [ $venv_status -eq 1 ]; then
+    # Doesn't exist, create it
     echo -e "${YELLOW}📦 Creating virtual environment...${NC}"
     $PYTHON_CMD -m venv .venv
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌ Failed to create virtual environment${NC}"
         exit 1
     fi
+elif [ $venv_status -eq 2 ]; then
+    # Corrupted, remove and recreate
+    echo -e "${YELLOW}📦 Virtual environment appears corrupted, recreating...${NC}"
+    rm -rf .venv
+    $PYTHON_CMD -m venv .venv
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Failed to recreate virtual environment${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✅ Virtual environment is valid${NC}"
 fi
 
 # Activate virtual environment
 echo -e "${YELLOW}🔧 Activating virtual environment...${NC}"
 if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
+    # After activation, use 'python' instead of the original PYTHON_CMD
+    # as virtual environments typically provide 'python' regardless of the original command
+    PYTHON_CMD="python"
+    
+    # Verify activation worked
+    if ! command -v python >/dev/null 2>&1; then
+        echo -e "${RED}❌ Error: Virtual environment activation failed${NC}"
+        echo "Python command not available after activation"
+        exit 1
+    fi
+    
+    # Verify we're using the virtual environment's Python
+    CURRENT_PYTHON=$(which python)
+    if [[ "$CURRENT_PYTHON" != *".venv"* ]]; then
+        echo -e "${RED}❌ Error: Not using virtual environment Python${NC}"
+        echo "Current Python: $CURRENT_PYTHON"
+        echo "Expected to contain: .venv"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✅ Virtual environment activated successfully${NC}"
+    echo -e "${BLUE}🐍 Using Python: $(python --version) at $CURRENT_PYTHON${NC}"
 else
     echo -e "${RED}❌ Error: Virtual environment activation script not found${NC}"
     echo "Expected: .venv/bin/activate"
