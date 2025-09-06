@@ -88,7 +88,6 @@ def run_exercise_command(command_str, cwd=None):
     """
     try:
         env = os.environ.copy()
-        env['FLASK_APP'] = 'VulnerableApp'
         process = subprocess.Popen(
             command_str,
             shell=True,
@@ -120,11 +119,6 @@ def run_exercise_command(command_str, cwd=None):
 print(list_script_filepaths())
 process = run_exercise(list_script_filepaths()[0])
 if process:
-    print(f"Keeping Flask process {process.pid} alive for 60 seconds...")
-    # sleep(60)
-    # print("Terminating Flask process...")
-    # process.terminate()
-    # process.wait()
-    # print("Flask process terminated.")
+    print(f"Exercise process PID {process.pid} is alive...")
 else:
-    print("Failed to start Flask process.")
+    print("Failed to start Exercise process.")
