@@ -40,6 +40,7 @@ Look for destructive actions in the application that don't require additional co
 -The request might be accepted from any origin  
 
 Try examining what happens when you navigate directly to certain URLs while logged in.
+
 </details>
 
 <details markdown="1">
@@ -50,8 +51,11 @@ CSRF attacks work by:
 2. Creating a malicious HTML page that automatically makes the request  
 3. Tricking a logged-in user to visit your malicious page  
 
-For GET-based CSRF attacks, you can use simple HTML elements like img tags or iframe elements that automatically load URLs.
-</details><details>
+For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags or `<iframe>` elements that automatically load URLs.
+
+</details>
+
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Primary Attack Vector: Hidden Form Auto-Submit**  
@@ -81,6 +85,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like img tags or if
    &lt;/body&gt;
    &lt;/html&gt;
    ```  
+
 3. **Execute the Attack:**  
    -Save as `csrf_delete.html`  
    -Have a logged-in user visit this page  
@@ -95,6 +100,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like img tags or if
 **Why it works:** The application doesn't validate that the request came from its own forms (no CSRF tokens) and accepts destructive GET requests.  
   
 **Note:** This application contains other CSRF vulnerabilities in password changes and username modifications if you wish to explore less destructive attack vectors.  
+
 </details>
 
 ---
@@ -117,6 +123,7 @@ Look for input fields that might be directly inserted into SQL queries without p
 - Credit/account details pages  
 
 Try entering SQL metacharacters like single quotes (`'`) to see if you get database errors.  
+
 </details>
 
 <details markdown="1">
@@ -128,6 +135,7 @@ SQL Injection techniques to try:
 - **Error-based**: Use malformed queries to extract database information  
 
 Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to inject SQL?  
+
 </details>
 
 <details markdown="1">
@@ -161,6 +169,7 @@ Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to in
 **Why it works:** The application constructs SQL queries through string concatenation: `SELECT * FROM credit WHERE userid=` + user_input, allowing attackers to inject arbitrary SQL code.  
 
 **Note:** This application has other SQL injection points in the login form and username change functionality if you wish to explore authentication bypass and other attack vectors.  
+
 </details>
 
 ---
@@ -183,6 +192,7 @@ Look for input fields where user data gets stored and then displayed to other us
 - Any field that appears on pages viewed by others  
   
 The key is finding where input is stored in the database and later displayed without proper HTML escaping.  
+
 </details>
 
 <details markdown="1">
@@ -194,6 +204,7 @@ XSS payloads to try:
 - **SVG**: `&lt;svg onload="alert('XSS')"&gt;`  
 
 Look at the "Update Account Settings" page - there might be different fields for username vs display name. The display name field might be more vulnerable since it's shown on the profile page.  
+
 </details>
 
 <details markdown="1">
@@ -217,7 +228,8 @@ Look at the "Update Account Settings" page - there might be different fields for
 
 **Why it works:** The application stores user input and displays it without sanitization which allows JavaScript execution.  
 
-**Note:** This application has other potential XSS vectors in comment fields and other user-controlled content if you wish to explore different injection points.  
+**Note:** This application has other potential XSS vectors in comment fields and other user-controlled content if you wish to explore different injection points.
+
 </details>
 
 ---
@@ -239,6 +251,7 @@ Session hijacking can occur through various methods:
 - **Weak session tokens**: Predictable or easily guessable session IDs  
 
 Look at the cookies set by the application when you login. Examine their properties and values using browser Developer Tools → Application → Cookies.  
+
 </details>
 
 <details markdown="1">
@@ -250,6 +263,7 @@ Check the session implementation:
 - Can you manually set cookie values to impersonate other users?  
 
 Try logging in as different users and compare their session cookies. Look for patterns in `userid` and `userhash` values. You might be able to craft cookies for other users.  
+
 </details>
 
 <details markdown="1">
@@ -285,7 +299,8 @@ Try logging in as different users and compare their session cookies. Look for pa
    -Cookies aren't marked as `HttpOnly` (accessible via JavaScript)  
    -No `Secure` flag means cookies can be transmitted over HTTP  
 
-**Note:** This application has additional session vulnerabilities including predictable userhash patterns and session fixation possibilities if you wish to explore more sophisticated attack vectors.  
+**Note:** This application has additional session vulnerabilities including predictable userhash patterns and session fixation possibilities if you wish to explore more sophisticated attack vectors.
+
 </details>
 
 ---
@@ -318,6 +333,7 @@ Once you have a username, choose either:
 The login page provides different error messages or response behaviors for valid vs invalid usernames. This is called "username enumeration."  
 
 Start with your known credentials (`Johnnydepp` / `Pirates`) and observe the application's theme. The application appears to be themed around a famous movie franchise - try other character names from that universe.  
+
 </details>
 
 <details markdown="1">
@@ -328,6 +344,7 @@ Pirates of the Caribbean characters to try:
 - Other characters: `Davy`, `Jones`, `Calypso`, `Bootstrap`  
 
 Try these usernames with any password and observe the login response differences between valid and invalid usernames.  
+
 </details>
 
 <details markdown="1">
@@ -356,6 +373,7 @@ Try these usernames with any password and observe the login response differences
    -Invalid usernames will show "User not found" or similar  
    -This difference allows you to enumerate all valid usernames  
    **Result:** You now have valid target usernames: `Jacksparrow` and `Barbossa`  
+
 </details>
 
 ---
@@ -368,6 +386,7 @@ Try these usernames with any password and observe the login response differences
 Examine how the application handles authentication in other pages after you log in. Look at the cookies and form parameters used in requests like `/changepassword`. The application might use predictable session tokens or hashes you can exploit.  
 
 Use Browser Developer Tools to intercept and modify requests. Tools like Burp Suite can also help capture and replay modified requests.  
+
 </details>
 
 <details markdown="1">
@@ -376,6 +395,7 @@ Use Browser Developer Tools to intercept and modify requests. Tools like Burp Su
 The `userhash` parameter in forms might be predictable. Try analyzing a valid request to see if you can determine how a userhash is generated from a username. Then, you might be able to craft valid requests for other users.  
 
 Try using `/changepassword` with a modified `userhash` value.  
+
 </details>
 
 <details markdown="1">
@@ -414,6 +434,7 @@ Try using `/changepassword` with a modified `userhash` value.
    -You now have complete access to their account  
 
 **Why it works:** The application trusts the client-provided userhash without proper server-side validation. Since the server does not verify that the hash you provided corresponds to the account you logged in with, it trusts the hash and modifies another account's password.  
+
 </details>
 
 ---
@@ -426,6 +447,7 @@ Try using `/changepassword` with a modified `userhash` value.
 Many users choose weak, common passwords. The rockyou.txt wordlist contains millions of commonly used passwords from real data breaches.  
 
 You can download rockyou.txt from security websites or use a smaller common password list. Try passwords related to the Pirates of the Caribbean theme first.  
+
 </details>
 
 <details markdown="1">
@@ -471,6 +493,7 @@ Use Burp Suite's Intruder feature to automate password attempts, or try them man
    -Access their profiles, credit information, and account settings  
 
 **Why it works:** Users often choose predictable, personally relevant passwords or very common passwords that appear in common password lists.  
+
 </details>
 
 ---

