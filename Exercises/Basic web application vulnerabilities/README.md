@@ -75,7 +75,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags o
        &lt;p&gt;Loading your prize...&lt;/p&gt;
        
        &lt;!-- Hidden CSRF attack form --&gt;
-       &lt;form id="csrf" action="http://localhost:5000/deleteuser" method="GET" style="display:none;"&gt;
+       &lt;form id="csrf" action="http://<TARGET_IP>:4444/deleteuser" method="GET" style="display:none;"&gt;
        &lt;/form&gt;
        
        &lt;script&gt;
@@ -93,9 +93,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags o
    -Their account is permanently deleted without their knowledge  
   
 4. **Why This Attack is Particularly Dangerous:**  
-   -**Irreversible**: The account and all associated data are permanently deleted  
-   -**Silent**: The user might not immediately realize what happened  
-   -**No confirmation**: Account deletion should require explicit user confirmation  
+   -**Irreversible data destruction**: The account and all associated data are permanently deleted  
 
 **Why it works:** The application doesn't validate that the request came from its own forms (no CSRF tokens) and accepts destructive GET requests.  
   

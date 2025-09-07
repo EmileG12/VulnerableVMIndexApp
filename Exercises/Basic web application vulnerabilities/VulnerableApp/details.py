@@ -52,9 +52,9 @@ def loginupdate():
     userid = request.cookies.get('userid')
     return render_template("login_update.html",userhash=userhash, userid=userid)
 
-@details.route('/changepassword')
+@details.route('/changepassword', methods=['POST'])
 def changepassword():
-    newpassword = request.form.get('newpassword')
+    newpassword = request.form.get('passwordbox')
     userhash = request.form.get('userhash')
     db.session.query(User).filter(User.userhash == userhash).update({'password': str(newpassword)})
     db.session.commit()
@@ -103,18 +103,16 @@ def changename():
     
     return redirect(url_for('details.loginupdate'))
 
-@details.route('/deleteuser')
+@details.route('/deleteuser', methods=['GET'])
 @login_required
-def deleteuser():
+def deleteuser_get():
     userid = request.cookies.get('userid')
     sqlconn = sqlite3.connect(get_db_path())
     cursor = sqlconn.cursor()
     cursor.execute("delete from user where userid=" + str(userid))
     cursor.execute("delete from credit where userid=" + str(userid))
     sqlconn.commit()
-    response = redirect(url_for('auth.login'))
-    response.delete_cookie('userhash')
-    response.delete_cookie('userid')
+    sqlconn.close()
     return render_template("delete_user.html")
 
 @details.route('/deleteuser', methods=['POST'])
@@ -126,7 +124,5 @@ def deleteuser_post():
     cursor.execute("delete from user where userid=" + str(userid))
     cursor.execute("delete from credit where userid=" + str(userid))
     sqlconn.commit()
-    response = redirect(url_for('auth.login'))
-    response.delete_cookie('userhash')
-    response.delete_cookie('userid')
+    sqlconn.close()
     return render_template("delete_user.html")
