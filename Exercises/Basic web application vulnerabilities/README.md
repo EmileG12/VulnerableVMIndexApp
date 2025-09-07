@@ -31,18 +31,18 @@ By completing these exercises, you will learn to:
 ### Question
 **Can you delete another user's account without their knowledge using a CSRF attack? Demonstrate how an attacker could craft a malicious webpage that permanently deletes a logged-in user's account when they visit it.**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 Look for destructive actions in the application that don't require additional confirmation. Notice that:  
-- Some endpoints might accept simple GET requests  
-- There might be missing CSRF protection tokens  
-- The request might be accepted from any origin  
+-Some endpoints might accept simple GET requests  
+-There might be missing CSRF protection tokens  
+-The request might be accepted from any origin  
 
 Try examining what happens when you navigate directly to certain URLs while logged in.
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 CSRF attacks work by:  
@@ -50,54 +50,51 @@ CSRF attacks work by:
 2. Creating a malicious HTML page that automatically makes the request  
 3. Tricking a logged-in user to visit your malicious page  
 
-For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags or `<iframe>` elements that automatically load URLs.
-</details>
-
-<details>
+For GET-based CSRF attacks, you can use simple HTML elements like img tags or iframe elements that automatically load URLs.
+</details><details>
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Primary Attack Vector: Hidden Form Auto-Submit**  
 
 1. **Analyze the Request:**  
-   - Login to the application and examine available actions  
-   - Notice that `/deleteuser` permanently deletes the current user's account  
-   - The endpoint accepts GET requests without additional confirmation  
+   -Login to the application and examine available actions  
+   -Notice that `/deleteuser` permanently deletes the current user's account  
+   -The endpoint accepts GET requests without additional confirmation  
 
 2. **Create Malicious HTML:**  
-   ```html  
-   <!DOCTYPE html>  
-   <html>  
-   <head><title>Free Gift Card!</title></head>  
-   <body>  
-       <h1>Congratulations! You've won a $100 gift card!</h1>  
-       <p>Loading your prize...</p>  
-       
-       <!-- Hidden CSRF attack form -->  
-       <form id="csrf" action="http://localhost:5000/deleteuser" method="GET" style="display:none;">  
-       </form>  
-       
-       <script>  
-           // Auto-submit after page loads  
-           document.getElementById('csrf').submit();  
-       </script>  
-   </body>  
-   </html>  
    ```
-
+   &lt;!DOCTYPE html&gt;
+   &lt;html&gt;
+   &lt;head&gt;&lt;title&gt;Free Gift Card!&lt;/title&gt;&lt;/head&gt;
+   &lt;body&gt;
+       &lt;h1&gt;Congratulations! You've won a $100 gift card!&lt;/h1&gt;
+       &lt;p&gt;Loading your prize...&lt;/p&gt;
+       
+       &lt;!-- Hidden CSRF attack form --&gt;
+       &lt;form id="csrf" action="http://localhost:5000/deleteuser" method="GET" style="display:none;"&gt;
+       &lt;/form&gt;
+       
+       &lt;script&gt;
+           // Auto-submit after page loads
+           document.getElementById('csrf').submit();
+       &lt;/script&gt;
+   &lt;/body&gt;
+   &lt;/html&gt;
+   ```  
 3. **Execute the Attack:**  
-   - Save as `csrf_delete.html`  
-   - Have a logged-in user visit this page  
-   - The hidden form automatically submits on page load  
-   - Their account is permanently deleted without their knowledge  
-
+   -Save as `csrf_delete.html`  
+   -Have a logged-in user visit this page  
+   -The hidden form automatically submits on page load  
+   -Their account is permanently deleted without their knowledge  
+  
 4. **Why This Attack is Particularly Dangerous:**  
-   - **Irreversible**: The account and all associated data are permanently deleted  
-   - **Silent**: The user might not immediately realize what happened  
-   - **No confirmation**: Account deletion should require explicit user confirmation  
+   -**Irreversible**: The account and all associated data are permanently deleted  
+   -**Silent**: The user might not immediately realize what happened  
+   -**No confirmation**: Account deletion should require explicit user confirmation  
 
-**Why it works:** The application doesn't validate that the request came from its own forms (no CSRF tokens) and accepts destructive GET requests.
-
-**Note:** This application contains other CSRF vulnerabilities in password changes and username modifications if you wish to explore less destructive attack vectors.
+**Why it works:** The application doesn't validate that the request came from its own forms (no CSRF tokens) and accepts destructive GET requests.  
+  
+**Note:** This application contains other CSRF vulnerabilities in password changes and username modifications if you wish to explore less destructive attack vectors.  
 </details>
 
 ---
@@ -110,7 +107,7 @@ For GET-based CSRF attacks, you can use simple HTML elements like `<img>` tags o
 ### Question
 **Can you extract sensitive information from the database using SQL injection? Try to retrieve data from tables you shouldn't have access to, or bypass authentication mechanisms.**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 Look for input fields that might be directly inserted into SQL queries without proper sanitization. Common vulnerable endpoints include:  
@@ -119,10 +116,10 @@ Look for input fields that might be directly inserted into SQL queries without p
 - User profile updates  
 - Credit/account details pages  
 
-Try entering SQL metacharacters like single quotes (`'`) to see if you get database errors.
+Try entering SQL metacharacters like single quotes (`'`) to see if you get database errors.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 SQL Injection techniques to try:  
@@ -130,21 +127,21 @@ SQL Injection techniques to try:
 - **Boolean-based**: Use `OR 1=1` conditions to bypass authentication  
 - **Error-based**: Use malformed queries to extract database information  
 
-Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to inject SQL?
+Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to inject SQL?  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Primary Attack Vector: Union-Based SQL Injection via Credit Page**  
 
 1. **Identify the Vulnerable Endpoint:**  
-   - Navigate to `/credit/1` (or any user's credit page)  
-   - Notice the URL parameter directly reflects in the database query  
+   -Navigate to `/credit/1` (or any user's credit page)  
+	-Notice the URL parameter directly reflects in the database query  
 
 2. **Test for Vulnerability:**  
-   - Try: `http://localhost:5000/credit/1'`  
-   - If you see a database error, the endpoint is vulnerable  
+   -Try: `http://localhost:5000/credit/1'`  
+   -If you see a database error, the endpoint is vulnerable  
 
 3. **Exploit with Union Select:**  
    ```  
@@ -152,9 +149,9 @@ Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to in
    ```  
 
 4. **What happens:**  
-   - The malicious SQL gets executed: `SELECT * FROM credit WHERE userid=1 UNION SELECT username,password,userhash,name FROM user--`  
-   - This returns both credit data AND all user credentials  
-   - You'll see usernames and passwords displayed on the credit page  
+   -The malicious SQL gets executed: `SELECT * FROM credit WHERE userid=1 UNION SELECT username,password,userhash,name FROM user--`  
+   -This returns both credit data AND all user credentials  
+   -You'll see usernames and passwords displayed on the credit page  
 
 5. **Extract Different Data:**  
    ```  
@@ -176,7 +173,7 @@ Look at URLs with parameters like `/credit/1` - can you manipulate the `1` to in
 ### Question
 **Can you inject malicious JavaScript code that will execute when other users view your profile? Demonstrate how an attacker could steal user session cookies through stored XSS.**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 Look for input fields where user data gets stored and then displayed to other users. Common locations include:  
@@ -184,39 +181,39 @@ Look for input fields where user data gets stored and then displayed to other us
 - Display names  
 - Comments or posts  
 - Any field that appears on pages viewed by others  
-
-The key is finding where input is stored in the database and later displayed without proper HTML escaping.
+  
+The key is finding where input is stored in the database and later displayed without proper HTML escaping.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 XSS payloads to try:  
-- **Basic**: `<script>alert('XSS')</script>`  
-- **Image tag**: `<img src="x" onerror="alert('XSS')">`  
-- **SVG**: `<svg onload="alert('XSS')">`  
+- **Basic**: `&lt;script&gt;alert('XSS')&lt;/script&gt;`  
+- **Image tag**: `&lt;img src="x" onerror="alert('XSS')"&gt;`  
+- **SVG**: `&lt;svg onload="alert('XSS')"&gt;`  
 
-Look at the "Update Account Settings" page - there might be different fields for username vs display name. The display name field might be more vulnerable since it's shown on the profile page.
+Look at the "Update Account Settings" page - there might be different fields for username vs display name. The display name field might be more vulnerable since it's shown on the profile page.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Primary Attack Vector: Display Name Field XSS**
 
 1. **Identify Vulnerable Field:**  
-   - Login to the application
-   - Navigate to "Update Account Settings"
-   - The **"Change Display Name"** field stores data that appears on the profile page
-
+   -Login to the application  
+   -Navigate to "Update Account Settings"  
+   -The **"Change Display Name"** field stores data that appears on the profile page  
+  
 2. **Test Basic XSS:**  
-    - Enter the following in the **"Change Display Name"**  
-   ```  
-   <script>alert('XSS Attack Successful!')</script>  
-   ```  
+   -Enter the following in the **"Change Display Name"**  
+   ```
+   &lt;script&gt;alert('XSS Attack Successful!')&lt;/script&gt;
+   ```
 3. **Verify the attack worked**  
-    - Go to the Profile page
-    - If an alert pops up, the attack was succesful.  
+   -Go to the Profile page  
+   -If an alert pops up, the attack was succesful.  
 
 **Why it works:** The application stores user input and displays it without sanitization which allows JavaScript execution.  
 
@@ -233,18 +230,18 @@ Look at the "Update Account Settings" page - there might be different fields for
 ### Question
 **Can you gain unauthorized access to another user's account by stealing or manipulating their session data? Explore how weak session management can be exploited.**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
-
+  
 Session hijacking can occur through various methods:  
 - **Cookie theft**: Using XSS to steal session cookies  
 - **Session fixation**: Forcing a victim to use a known session ID  
 - **Weak session tokens**: Predictable or easily guessable session IDs  
 
-Look at the cookies set by the application when you login. Examine their properties and values using browser Developer Tools → Application → Cookies.
+Look at the cookies set by the application when you login. Examine their properties and values using browser Developer Tools → Application → Cookies.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 Check the session implementation:  
@@ -255,10 +252,10 @@ Check the session implementation:
 Try logging in as different users and compare their session cookies. Look for patterns in `userid` and `userhash` values. You might be able to craft cookies for other users.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
-**Primary Attack Vector: Direct Cookie Manipulation**
+**Primary Attack Vector: Direct Cookie Manipulation**  
 
 1. **Cookie Analysis:**  
    After logging in, examine cookies in Developer Tools (F12 → Application → Cookies):  
@@ -269,31 +266,31 @@ Try logging in as different users and compare their session cookies. Look for pa
    ```
 
 2. **Test Cookie Manipulation:**  
-   - Login as the default user (`Johnnydepp`)  
-   - Note your `userid` value (likely `1`, `2`, or `3`)  
-   - In the browser console, try changing the userid:  
+   -Login as the default user (`Johnnydepp`)  
+   -Note your `userid` value (likely `1`, `2`, or `3`)  
+   -In the browser console, try changing the userid:  
    ```  
    document.cookie = "userid=2; path=/";  
    location.reload();  
    ```  
 
 3. **Complete Session Hijacking:**  
-   - If changing userid alone works, you've successfully hijacked another user's session  
-   - You can now access their profile, credit information, and account settings  
-   - Try navigating to `/profile` to see the other user's data  
+   -If changing userid alone works, you've successfully hijacked another user's session  
+   -You can now access their profile, credit information, and account settings  
+   -Try navigating to `/profile` to see the other user's data  
 
 4. **Why This Works:**  
-   - The application relies primarily on the `userid` cookie for authentication  
-   - No additional session validation is performed  
-   - Cookies aren't marked as `HttpOnly` (accessible via JavaScript)  
-   - No `Secure` flag means cookies can be transmitted over HTTP  
+   -The application relies primarily on the `userid` cookie for authentication  
+   -No additional session validation is performed  
+   -Cookies aren't marked as `HttpOnly` (accessible via JavaScript)  
+   -No `Secure` flag means cookies can be transmitted over HTTP  
 
 **Note:** This application has additional session vulnerabilities including predictable userhash patterns and session fixation possibilities if you wish to explore more sophisticated attack vectors.  
 </details>
 
 ---
 
-## � Advanced Exercise: Multi-Step Account Takeover
+## 🎯 Advanced Exercise: Multi-Step Account Takeover
 
 ### What is Account Takeover?
 **Account Takeover** is a sophisticated attack where an attacker gains complete control of another user's account through a combination of reconnaissance, vulnerability exploitation, and credential attacks. This multi-step process involves discovering valid usernames, understanding authentication mechanisms, and either bypassing authorization or cracking passwords. Real-world attackers often chain multiple vulnerabilities together to achieve their goals.
@@ -315,7 +312,7 @@ Once you have a username, choose either:
 
 ### **Step 1: Username Enumeration**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 The login page provides different error messages or response behaviors for valid vs invalid usernames. This is called "username enumeration."  
@@ -323,7 +320,7 @@ The login page provides different error messages or response behaviors for valid
 Start with your known credentials (`Johnnydepp` / `Pirates`) and observe the application's theme. The application appears to be themed around a famous movie franchise - try other character names from that universe.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 Pirates of the Caribbean characters to try:  
@@ -333,31 +330,31 @@ Pirates of the Caribbean characters to try:
 Try these usernames with any password and observe the login response differences between valid and invalid usernames.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Username Discovery Process:**  
 
 1. **Analyze Current Credentials:**  
-   - You start with: `Johnnydepp` / `Pirates`  
-   - Notice the Pirates of the Caribbean theme  
+   -You start with: `Johnnydepp` / `Pirates`  
+   -Notice the Pirates of the Caribbean theme  
 
 2. **Test Username Enumeration:**  
-   - Go to the login page  
-   - Try `Jacksparrow` with password `wrongpassword`  
-   - Try `InvalidUser` with password `wrongpassword`  
-   - Compare the responses - valid usernames will give different error messages  
+   -Go to the login page  
+   -Try `Jacksparrow` with password `wrongpassword`  
+   -Try `InvalidUser` with password `wrongpassword`  
+   -Compare the responses - valid usernames will give different error messages  
 
 3. **Discover Valid Usernames:**  
    The following usernames exist in the system:  
-   - `Johnnydepp` (already known)  
-   - `Jacksparrow`  
-   - `Barbossa`  
+   -`Johnnydepp` (already known)  
+   -`Jacksparrow`  
+   -`Barbossa`  
 
 4. **Confirm Discovery:**  
-   - Valid usernames will show "Invalid password" or similar  
-   - Invalid usernames will show "User not found" or similar  
-   - This difference allows you to enumerate all valid usernames  
+   -Valid usernames will show "Invalid password" or similar  
+   -Invalid usernames will show "User not found" or similar  
+   -This difference allows you to enumerate all valid usernames  
    **Result:** You now have valid target usernames: `Jacksparrow` and `Barbossa`  
 </details>
 
@@ -365,7 +362,7 @@ Try these usernames with any password and observe the login response differences
 
 ### **Step 2A: Authorization Bypass**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 Examine how the application handles authentication in other pages after you log in. Look at the cookies and form parameters used in requests like `/changepassword`. The application might use predictable session tokens or hashes you can exploit.  
@@ -373,7 +370,7 @@ Examine how the application handles authentication in other pages after you log 
 Use Browser Developer Tools to intercept and modify requests. Tools like Burp Suite can also help capture and replay modified requests.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 The `userhash` parameter in forms might be predictable. Try analyzing a valid request to see if you can determine how a userhash is generated from a username. Then, you might be able to craft valid requests for other users.  
@@ -381,16 +378,16 @@ The `userhash` parameter in forms might be predictable. Try analyzing a valid re
 Try using `/changepassword` with a modified `userhash` value.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Authorization Bypass via Userhash Manipulation:**  
 
 1. **Capture Legitimate Request:**  
-   - Login as `Johnnydepp`  
-   - Go to "Update Account Settings"  
-   - Open Developer Tools → Network tab  
-   - Change your password and capture the `/changepassword` request  
+   -Login as `Johnnydepp`  
+   -Go to "Update Account Settings"  
+   -Open Developer Tools → Network tab  
+   -Change your password and capture the `/changepassword` request  
 
 2. **Analyze the Request:**  
    ```  
@@ -399,22 +396,22 @@ Try using `/changepassword` with a modified `userhash` value.
    ```  
 
 3. **Determine Hash Algorithm:**  
-   - The userhash appears to be MD5 of the username  
-   - Verify: MD5("Johnnydepp") = 284de456273eafab252a33b59c8de461  
+   -The userhash appears to be MD5 of the username  
+   -Verify: MD5("Johnnydepp") = 284de456273eafab252a33b59c8de461  
 
 4. **Calculate Target Hash:**  
-   - For `Jacksparrow`: MD5("Jacksparrow") = 7ce7dce5980b9b01c8d8be2d0f0ae99d  
-   - For `Barbossa`: MD5("Barbossa") = 9d3f9b3d0bcef0b8bc1d2d5a5c5e4f1a  
+   -For `Jacksparrow`: MD5("Jacksparrow") = 7ce7dce5980b9b01c8d8be2d0f0ae99d  
+   -For `Barbossa`: MD5("Barbossa") = 9d3f9b3d0bcef0b8bc1d2d5a5c5e4f1a  
 
 5. **Execute Bypass:**  
-   - Use Burp Suite or modify the request manually  
-   - Replace the userhash with the target user's hash  
-   - Submit: `passwordbox=hacked123&userhash=7ce7dce5980b9b01c8d8be2d0f0ae99d`  
-   - You've now changed Jacksparrow's password to "hacked123"  
+   -Use Burp Suite or modify the request manually  
+   -Replace the userhash with the target user's hash  
+   -Submit: `passwordbox=hacked123&userhash=7ce7dce5980b9b01c8d8be2d0f0ae99d`  
+   -You've now changed Jacksparrow's password to "hacked123"  
 
 6. **Verify Access:**  
-   - Login as `Jacksparrow` with password `hacked123`  
-   - You now have complete access to their account  
+   -Login as `Jacksparrow` with password `hacked123`  
+   -You now have complete access to their account  
 
 **Why it works:** The application trusts the client-provided userhash without proper server-side validation. Since the server does not verify that the hash you provided corresponds to the account you logged in with, it trusts the hash and modifies another account's password.  
 </details>
@@ -423,7 +420,7 @@ Try using `/changepassword` with a modified `userhash` value.
 
 ### **Step 2B: Password Cracking (Beginner Path)**
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 1</strong> (Click to expand)</summary>
 
 Many users choose weak, common passwords. The rockyou.txt wordlist contains millions of commonly used passwords from real data breaches.  
@@ -431,7 +428,7 @@ Many users choose weak, common passwords. The rockyou.txt wordlist contains mill
 You can download rockyou.txt from security websites or use a smaller common password list. Try passwords related to the Pirates of the Caribbean theme first.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 <strong>Hint 2</strong> (Click to expand)</summary>
 
 Common weak passwords to try:  
@@ -442,14 +439,14 @@ Common weak passwords to try:
 Use Burp Suite's Intruder feature to automate password attempts, or try them manually.  
 </details>
 
-<details>
+<details markdown="1">
 <summary>🔓 <strong>Solution</strong> (Click to expand)</summary>
 
 **Password Cracking Attack:**  
 
 1. **Prepare Password List:**  
-   - Download rockyou.txt or create a custom list
-   - Pirates-themed passwords to try first:    
+   -Download rockyou.txt or create a custom list
+   -Pirates-themed passwords to try first:    
      Blackpearl  
      Princess  
      Caribbean  
@@ -459,19 +456,19 @@ Use Burp Suite's Intruder feature to automate password attempts, or try them man
      Calypso    
 
 2. **Automated with Burp Suite:**  
-   - Capture a failed login request  
-   - Send to Intruder  
-   - Set payload position on the password field  
-   - Load your password list  
-   - Start attack and look for different response lengths/codes  
+   -Capture a failed login request  
+   -Send to Intruder  
+   -Set payload position on the password field  
+   -Load your password list  
+   -Start attack and look for different response lengths/codes  
 
 4. **Discovered Credentials:**  
-   - `Jacksparrow` / `Blackpearl`  
-   - `Barbossa` / `Blackpearl`  
+   -`Jacksparrow` / `princess`  
+   -`Barbossa` / `Blackpearl`  
 
 5. **Verify Access:**  
-   - Login with the discovered credentials  
-   - Access their profiles, credit information, and account settings  
+   -Login with the discovered credentials  
+   -Access their profiles, credit information, and account settings  
 
 **Why it works:** Users often choose predictable, personally relevant passwords or very common passwords that appear in common password lists.  
 </details>

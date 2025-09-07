@@ -4,6 +4,7 @@ from pathlib import Path
 from flask import Blueprint, render_template, render_template_string, request
 from flask_login import login_required
 import markdown
+import html
 from .rundaemon import run_exercise_command
 from . import db
 
@@ -24,7 +25,12 @@ def markdown_file_to_html_template(md_filepath):
         raise FileNotFoundError(f"Markdown file not found at: {md_filepath}")
     with open(md_filepath, "r", encoding="utf-8") as f:
         md_content = f.read()
-    html_content = markdown.markdown(md_content, extensions=['extra', 'codehilite', 'toc'])
+    
+    # Use markdown with extra extension to support markdown="1" in HTML blocks
+    html_content = markdown.markdown(
+        md_content, 
+        extensions=['extra', 'fenced_code', 'tables', 'toc', 'nl2br']
+    )
     return html_content
 
 def list_exercise_folders(exercise_path):
